@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  postgres-list:
+    image: postgres:16.3
+    environment:
+      POSTGRES_DB: edu
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    volumes:
+      -  ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-network
+
+  pgadmin-list:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    user: root
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres-list
+    networks:
+      - postgres-network
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
+
+networks:
+  postgres-network:

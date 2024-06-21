@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  db-main:
+    image: postgres:16.3
+    environment:
+      POSTGRES_DB: maindb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - ./main-db-data:/var/lib/postgresql/data
+      - ./init-main-db.sql:/docker-entrypoint-initdb.d/init-main-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-network
+
+  db-external:
+    image: postgres:16.3
+    environment:
+      POSTGRES_DB: externaldb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - ./external-db-data:/var/lib/postgresql/data
+      - ./init-external-db.sql:/docker-entrypoint-initdb.d/init-external-db.sql
+    ports:
+      - "5433:5432"
+    networks:
+      - postgres-network
+    depends_on:
+      - db-main
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    user: root
+    ports:
+      - "5050:80"
+    depends_on:
+      - db-main
+      - db-external
+    networks:
+      - postgres-network
+    volumes:
+      - ./pgadmin-data:/var/lib/pgadmin
+
+networks:
+  postgres-network:
